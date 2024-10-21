@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  
+
+  db:
+    image: mongo:latest
+    restart: always
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+
+  redis:
+    image: redis:7.0
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  app:
+      build: .
+      container_name: compendio
+      restart: always
+      ports:
+        - "3000:3000"
+      depends_on:
+        - db
+        - redis
+
+
+  mongo-seed:
+      image: mongo:latest
+      depends_on:
+        - db
+      volumes:
+        - ./Personas.json:/Personas.json
+      entrypoint: >
+        bash -c "mongoimport --host db --db test --collection Persona --authenticationDatabase admin --username root --password example --file /Personas.json --jsonArray"
+
