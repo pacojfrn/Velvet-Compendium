@@ -25,7 +25,8 @@ async function startServer() {
     await client.connect() 
 
     setupSwagger(app)
-
+      
+    app.get("/", index)
     app.use("/compendio", compendio)
     app.use(notFound)
 
