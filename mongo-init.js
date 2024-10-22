@@ -2,13 +2,10 @@ const fs = require('fs');
 const MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb://root:example@db:27017/';
 const dbName = 'test'; 
-const collectionName = 'Persona';
 
 MongoClient.connect(url, { useUnifiedTopology: true }, (err, client) => {
     if (err) throw err;
 
-    const db = client.db(dbName);
-    const personas = JSON.parse(fs.readFileSync('./Personas.json', 'utf8'));
 
     try {
         // Verificar si la colección ya contiene documentos

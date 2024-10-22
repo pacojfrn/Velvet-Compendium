@@ -8,6 +8,6 @@ RUN npm install
 
 COPY mongo-init.js /docker-entrypoint-initdb.d/mongo-init.js
 
-EXPOSE 8084
+EXPOSE 4000
 
 CMD ["npm", "start"]

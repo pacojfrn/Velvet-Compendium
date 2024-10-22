@@ -7,6 +7,7 @@ const redisClient = require('redis').createClient({
 });
 redisClient.connect();
 
+// Métodos GET
 /**
  * @swagger
  * components:
@@ -48,7 +49,6 @@ redisClient.connect();
  *           type: string
  *           description: Nombre de la Persona.
  */
-
 /**
  * @swagger
  * /compendio:
@@ -94,16 +94,14 @@ redisClient.connect();
  *       500:
  *         description: Error interno del servidor.
  */
-
 compendio.get('/', async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
     const cacheKey = `personas:page:${page}:limit:${limit}`;
 
     try {
-        const cachedPersonas = await redisClient.get(cacheKey); 
-
+        const cachedPersonas = await redisClient.get(cacheKey);
         if (cachedPersonas) {
-            return res.json(JSON.parse(cachedPersonas)); 
+            return res.json(JSON.parse(cachedPersonas));
         }
 
         const personas = await Persona.find()
@@ -111,7 +109,6 @@ compendio.get('/', async (req, res) => {
             .limit(parseInt(limit));
 
         const total = await Persona.countDocuments();
-
         const result = {
             totalPersonas: total,
             totalPages: Math.ceil(total / limit),
@@ -119,10 +116,7 @@ compendio.get('/', async (req, res) => {
             personas
         };
 
-        await redisClient.set(cacheKey, JSON.stringify(result), {
-            EX: 3600 
-        });
-
+        await redisClient.set(cacheKey, JSON.stringify(result), { EX: 30 });
         res.json(result);
 
     } catch (error) {
@@ -152,7 +146,6 @@ compendio.get('/', async (req, res) => {
  *       404:
  *         description: Persona not found
  */
-
 compendio.get('/name/:name', async (req, res) => {
     try {
         const persona = await Persona.findOne({ name: req.params.name });
@@ -190,7 +183,6 @@ compendio.get('/name/:name', async (req, res) => {
  *       500:
  *         description: Error interno del servidor.
  */
-
 compendio.get('/:id', async (req, res) => {
     try {
         const persona = await Persona.findById(req.params.id);
@@ -236,13 +228,11 @@ compendio.get('/:id', async (req, res) => {
  *       500:
  *         description: "Error interno del servidor."
  */
-
 compendio.get('/type/:arcana', async (req, res) => {
-    const arcana = req.params.arcana;
+    const { arcana } = req.params;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 4;
     const skip = (page - 1) * limit;
-
     const cacheKey = `personas:${arcana}:page:${page}`;
 
     try {
@@ -256,14 +246,14 @@ compendio.get('/type/:arcana', async (req, res) => {
             .limit(limit);
 
         await redisClient.setEx(cacheKey, 600, JSON.stringify(personas));
-
         res.json(personas);
     } catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
 });
 
-module.exports = compendio;
+// Método POST
+
 /**
  * @swagger
  * /compendio:
@@ -282,76 +272,22 @@ module.exports = compendio;
  *       500:
  *         description: Error interno del servidor.
  */
-
 compendio.post('/', async (req, res) => {
     try {
-        const {
-            arcana, 
-            weak, 
-            stats, 
-            strengths, 
-            level, 
-            name
-        } = req.body;
+        const { arcana, weak, stats, strengths, level, name } = req.body;
 
         const persona = new Persona({
-            arcana, 
-            weak, 
-            stats, 
-            strengths, 
-            level, 
-            name
+            arcana, weak, stats, strengths, level, name
         });
 
         await persona.save();
-
-        res.json({ success: true, persona }); 
+        res.json({ success: true, persona });
     } catch (error) {
         res.status(500).send(error.message);
     }
 });
 
-/**
- * @swagger
- * /compendio/{id}:
- *   put:
- *     summary: Actualizar una Persona por ID
- *     description: Actualiza una Persona existente en la base de datos.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID de la Persona a actualizar.
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Persona'
- *     responses:
- *       200:
- *         description: Persona actualizada exitosamente.
- *       404:
- *         description: Persona no encontrada.
- *       500:
- *         description: Error interno del servidor.
- */
-
-compendio.put('/:id', async (req, res) => {
-    try {
-        const persona = await Persona.findByIdAndUpdate(req.params.id, req.body, { new: true });
-
-        if (!persona) {
-            return res.status(404).json({ error: 'Persona not found' });
-        }
-
-        res.json({ success: true, updatedPersona: persona });
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
-    }
-});
+// Métodos PATCH y PUT
 
 /**
  * @swagger
@@ -380,53 +316,89 @@ compendio.put('/:id', async (req, res) => {
  *       500:
  *         description: Error interno del servidor.
  */
-
 compendio.patch('/:id', async (req, res) => {
     try {
         const updates = req.body;
         const updateFields = {};
 
-        // Construye el objeto de actualización para estadísticas específicas
         if (updates.stats) {
             for (const [key, value] of Object.entries(updates.stats)) {
                 updateFields[`stats.${key}`] = value;
             }
         }
 
-        // Añade otros campos de actualización al objeto de actualización
         for (const [key, value] of Object.entries(updates)) {
             if (key !== 'stats') {
                 updateFields[key] = value;
             }
         }
 
-        console.log('Update Fields:', updateFields); // Log para verificar el objeto de actualización
-
-        // Actualiza la entidad Persona con los campos específicos
         const persona = await Persona.findByIdAndUpdate(req.params.id, { $set: updateFields }, { new: true });
 
         if (!persona) {
-            return res.status(404).json({ error: 'Persona not found' });
+            return res.status(404).json({ message: 'Persona not found' });
         }
 
-        res.json({ success: true, updatedPersona: persona });
+        res.json({ success: true, persona });
     } catch (error) {
-        console.error('Error updating Persona:', error); // Log del error
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).send(error.message);
     }
 });
 
 /**
  * @swagger
  * /compendio/{id}:
- *   delete:
- *     summary: Eliminar una Persona por ID
- *     description: Elimina una Persona existente en la base de datos.
+ *   put:
+ *     summary: Reemplazar una Persona por ID
+ *     description: Reemplaza una Persona existente con los datos proporcionados.
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
- *         description: ID de la Persona a eliminar.
+ *         description: ID de la Persona a reemplazar.
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Persona'
+ *     responses:
+ *       200:
+ *         description: Persona reemplazada exitosamente.
+ *       404:
+ *         description: Persona no encontrada.
+ *       500:
+ *         description: Error interno del servidor.
+ */
+compendio.put('/:id', async (req, res) => {
+    try {
+        const persona = await Persona.findByIdAndUpdate(req.params.id, req.body, { new: true, overwrite: true });
+
+        if (!persona) {
+            return res.status(404).json({ error: 'Persona not found' });
+        }
+
+        res.json(persona);
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Método DELETE
+
+/**
+ * @swagger
+ * /compendio/{id}:
+ *   delete:
+ *     summary: Eliminar una Persona por ID
+ *     description: Elimina una Persona de la base de datos utilizando su ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: El ID de la Persona a eliminar.
  *         schema:
  *           type: string
  *     responses:
@@ -437,16 +409,16 @@ compendio.patch('/:id', async (req, res) => {
  *       500:
  *         description: Error interno del servidor.
  */
-
 compendio.delete('/:id', async (req, res) => {
     try {
         const persona = await Persona.findByIdAndDelete(req.params.id);
         if (!persona) {
-            return res.status(404).json({ error: 'Persona not found' }); 
+            return res.status(404).json({ message: 'Persona not found' });
         }
-        res.json({ success: true, message: 'Persona deleted successfully', persona });
+
+        res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).send(error.message);
     }
 });
 
