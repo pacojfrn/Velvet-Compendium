@@ -1,15 +1,14 @@
 const express = require('express')
 const redis = require('redis')
-
+const compendio = require('./routes/compendio')
+const index = require('./middleware/index')
+const notFound = require('./middleware/notFound')
 const connectDB = require('./config/database')
 const setupSwagger = require('./config/swagger')
 
-const compendio = require('./routes/compendio')
-
-const index = require('./middleware/index')
-const notFound = require('./middleware/notFound')
 
 const app = express()
+
 app.use(express.json())
 
 connectDB()
@@ -25,9 +24,7 @@ async function startServer() {
   try {
     await client.connect() 
 
-
     setupSwagger(app)
-
 
     app.get("/", index)
     app.use("/compendio", compendio)

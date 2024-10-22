@@ -31,6 +31,4 @@ const personaSchema = new mongoose.Schema({
         required: true
     }});
 
-const persona = mongoose.model('Persona', personaSchema, 'Persona');
-
-module.exports = persona;
+module.exports = mongoose.model('Persona', personaSchema, 'Persona');
