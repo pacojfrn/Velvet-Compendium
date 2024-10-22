@@ -26,7 +26,42 @@ Velvet Compendium es una API RESTful que actúa como un compendio de Personas de
 
 3. **Acceder a la API**
   Para acceder a los Endpoints despues de que la API se haya configurado, se debe acceder al siguiente link: [Swagger](http://localhost:4000/swaggerindex/)
-   
+
+## Nombres de las Entradas
+
+   - Abaddon
+   - Alice
+   - Alilat
+   - Ananta
+   - Angel
+   - Anubis
+   - Apsaras
+   - Ara Mitama
+   - Arahabaki
+   - Arcangel
+   - Asura
+   - Atavaka
+   - Atropos
+   - Attis
+   - Baal Zebul
+   - Baphomet
+   - Barong
+   - Belcebu
+   - Belphegor
+   - Berith
+   - Bishamonten
+   - Escarcha Negra
+   - Byakko
+   - Chernobog
+   - Chi tu
+   - Quimera
+   - Clotho
+   - Cu chulainn
+   - Cibeles
+   - Daisoujou
+   - Dakini
+   - Decarabia
+
 ## Endpoints de la API
 
 Los siguientes métodos están disponibles para interactuar con el compendio de personas a través de la API. Estos son accesibles desde `/compendio` y otros puntos finales relacionados.
