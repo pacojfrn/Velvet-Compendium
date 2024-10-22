@@ -6,6 +6,7 @@ Velvet Compendium es una API RESTful que actúa como un compendio de Personas de
 
 - **Docker**: Asegúrate de tener [Docker](https://www.docker.com/) instalado en tu sistema.
 - **Docker Compose**: [Docker Compose](https://docs.docker.com/compose/install/) también es necesario para orquestar los contenedores de la aplicación y la base de datos.
+- **Puerto**: Asegúrate de tener el puerto 4000 de tu computadora libre.
 
 ## Instalación
 
