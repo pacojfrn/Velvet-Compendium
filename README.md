@@ -12,7 +12,7 @@ Velvet Compendium es una API RESTful que actúa como un compendio de Personas de
 1. **Clonar el repositorio:**
 
    ```bash
-   git clone https://github.com/usuario/velvet-compendium.git
+   git clone https://github.com/pacojfrn/Velvet-Compendium.git
    cd velvet-compendium
 
 2. **Configurar y construir los contenedores**
