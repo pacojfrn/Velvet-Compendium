@@ -7,7 +7,7 @@ const options = {
     info: {
       title: 'Velvet Compendium',
       version: '1.0.0',
-      description: 'API RESTful de un compendio de Personas de Persona 3',
+      description: 'API de un compendio de Personas de Persona 3',
     },
     servers: [
       {
