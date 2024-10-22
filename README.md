@@ -23,6 +23,9 @@ Velvet Compendium es una API RESTful que actúa como un compendio de Personas de
    docker-compose up --build
    ```
    Esto descargará todas las dependencias, configurará la base de datos y levantará la API en el puerto 4000
+
+3. **Acceder a la API**
+  Para acceder a los Endpoints despues de que la API se haya configurado, se debe acceder al siguiente link: [Swagger](http://localhost:4000/swaggerindex/)
    
 ## Endpoints de la API
 

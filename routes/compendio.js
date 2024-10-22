@@ -69,7 +69,7 @@ redisClient.connect();
  *         schema:
  *           type: integer
  *           default: 10
- *         description: "Cantidad de resultados por página (por defecto: 4)."
+ *         description: "Cantidad de resultados por página (por defecto: 10)."
  *     responses:
  *       200:
  *         description: Lista de Personas con paginación.
